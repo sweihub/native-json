@@ -1,0 +1,18 @@
+[package]
+name = "native-json"
+version = "1.1.4"
+edition = "2021"
+description = "Native JSON for Rust"
+license = "MIT"
+repository = "https://github.com/sweihub/native-json"
+documentation = "https://docs.rs/native-json"
+
+[lib]
+doctest = false
+
+[dependencies]
+serde = { version = "1.0.147", features = ["derive"] }
+serde_json = "1.0.87"
+#native-json-macro = { path = "../macro" }
+native-json-macro = { version = "1.0"}
+

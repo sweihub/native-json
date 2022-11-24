@@ -1,0 +1,15 @@
+[package]
+name = "native-json-macro"
+version = "1.0.1"
+edition = "2021"
+description = "Native JSON for Rust"
+license = "MIT"
+repository = "https://github.com/sweihub/native-json"
+documentation = "https://docs.rs/native-json"
+
+[lib]
+proc-macro = true
+doctest = false
+
+[dependencies]
+syn = {version="1.0.103",features=["parsing"]}
