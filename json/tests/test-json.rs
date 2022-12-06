@@ -102,3 +102,27 @@ fn json_read_write() -> Result<(), std::io::Error> {
 
     Ok(())
 }
+
+#[test]
+fn json_test_array_with_custom_type() -> Result<(), std::io::Error> {
+
+    json!{
+        Student { name: String, age: u32}
+    }
+
+    json!{
+        Class {
+            name: String,
+            students: [Student]
+        }
+    }
+
+    let mut c = Class::new();
+    c.name = "High School".into();
+    let mut student = Student::new();
+    student.name = "Tom Jackson".into();
+    student.age = 25;
+    c.students.push(student);
+
+    Ok(())
+}
