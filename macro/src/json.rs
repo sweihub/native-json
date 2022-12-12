@@ -14,7 +14,7 @@ use syn::{
 // value =  object | array | expression
 // expression = string | number | identifier
 
-const ATTRIBUTES: &str = "#[derive(Serialize, Deserialize, Debug, Clone)]\n";
+const ATTRIBUTES: &str = "#[derive(Serialize, Deserialize, Debug, Clone)]\n#[allow(non_camel_case_types)]\n";
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum ValueType {
