@@ -126,3 +126,22 @@ fn json_test_array_with_custom_type() -> Result<(), std::io::Error> {
 
     Ok(())
 }
+
+#[test]
+fn json_test_inline_comment() {
+    println!("should compile");
+    json! {
+        AggTrage {
+            e: String,   // Event type: aggTrade
+            E: i64,      // Event time
+            s: String,   // Symbol
+            a: i64,      // Aggregate trade ID
+            p: String,   // Price
+            q: String,   // Quantity
+            f: i64,      // First trade ID
+            l: i64,      // Last trade ID
+            T: i64,      // Trade time
+            m: bool,     // Is the buyer the market maker?
+            c: char,     // test only   
+        }}
+}
