@@ -112,9 +112,9 @@
 //!
 pub use native_json_macro::*;
 pub use serde_json::Error;
+pub use serde::{Deserialize, Serialize};
 
 use std::{fs::read_to_string, path::Path};
-use serde::{Deserialize, Serialize};
 
 // normalize error
 fn get<T, E: ToString>(v: Result<T, E>) -> Result<T, String> 
