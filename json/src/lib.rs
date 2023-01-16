@@ -111,30 +111,15 @@
 //!```
 //!
 pub use native_json_macro::*;
-pub use serde_json::Error;
 pub use serde::{Deserialize, Serialize};
+pub use serde_json::Error;
+pub use serde_json::from_str as parse;
 
-use std::{fs::read_to_string, path::Path};
-
-// normalize error
-fn get<T, E: ToString>(v: Result<T, E>) -> Result<T, String> 
-{
-    match v {
-        Ok(a) => { Ok(a) },
-        Err(e) => { Err(e.to_string()) }
-    }
-}
-
-pub trait JSON<'a>: Serialize + Deserialize<'a> {
-    /// Parse JSON from string
-    fn parse<T: AsRef<str>>(&mut self, s: &'a T) -> Result<(), serde_json::Error> {
-        *self = serde_json::from_str(s.as_ref())?;
-        Ok(())
-    }
+pub trait JSON: Serialize {
 
     /// Return a concise JSON string
-    fn to_string(&self) -> String {
-       return self.stringify(0);
+    fn string(&self) -> anyhow::Result<String> {
+        self.stringify(0)
     }
 
      /// Stringify a native-json object
@@ -143,21 +128,10 @@ pub trait JSON<'a>: Serialize + Deserialize<'a> {
     ///
     /// - 0 : output concise JSON string
     /// - N : pretty output with N spaces indentation
-    fn stringify(&self, indent: usize) -> String   
-    {
-        let output;
-
+    fn stringify(&self, indent: usize) -> anyhow::Result<String> {
         // concise
         if indent == 0 {
-            match serde_json::to_string(self) {
-                Ok(s) => {
-                    output = s;
-                }
-                Err(e) => {
-                    return format!("{{ error : \"{}\" }}", e.to_string());
-                }
-            }
-            return output;
+            return Ok(serde_json::to_string(self)?);
         }
 
         // pretty
@@ -166,42 +140,12 @@ pub trait JSON<'a>: Serialize + Deserialize<'a> {
         let formatter = serde_json::ser::PrettyFormatter::with_indent(&spaces);
         let mut ser = serde_json::Serializer::with_formatter(buf, formatter);
 
-        if let Err(e) = self.serialize(&mut ser) {
-            return format!("{{ error : \"{}\" }}", e.to_string());
-        }
+        self.serialize(&mut ser)?; 
+        let output = String::from_utf8(ser.into_inner())?;
 
-        match String::from_utf8(ser.into_inner()) {
-            Ok(s) => {
-                output = s;
-            }
-            Err(e) => {
-                return format!("{{ error : \"{}\" }}", e.to_string());
-            }
-        }
-
-        return output;
-    }
-    
-     /// Deserialize JSON from file
-     /// 
-     /// Due to the serde lifetime issue, the content should have same lifetime as the JSON
-     /// object itself, the content will be borrowed as mutable zoombie.
-     fn read<F: AsRef<Path>>(&mut self, file: F, content: &'a mut String) -> Result<(), String>     
-     {
-        *content = get(read_to_string(file))?;
-        let decoder = serde_json::from_str(content.as_str());
-        *self = get(decoder)?;
- 
-         return Ok(());
-     }
-
-      /// Serialize JSON into file
-    fn write<F: AsRef<Path>>(&self, file: F) -> std::io::Result<()>
-    {
-        let content = self.stringify(4);
-        std::fs::write(file, content)?;
-        return Ok(());
+        Ok(output)
     }
 }
 
-impl<'a, T> JSON<'a> for T where T: Serialize + Deserialize<'a> {}
+impl<T> JSON for T where T: Serialize {}
+

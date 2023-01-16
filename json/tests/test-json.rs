@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use std::{collections::HashMap};
 use native_json::*;
+type Pod<T = (), E = anyhow::Error> = core::result::Result<T, E>;
 
 #[test]
 fn json_instance() {
@@ -52,7 +53,7 @@ fn json_declare() {
 }
 
 #[test]
-fn json_serialize() {
+fn json_serialize() -> Pod {
     let mut json = json!{
         name: "native json",
         point: { x: 10, y: 20},
@@ -60,45 +61,17 @@ fn json_serialize() {
         vector: vec![1,2,3,4,5,6]
     };
 
-    let s = json.stringify(4);
-
+    // stringify
+    let s = json.stringify(4)?;
     json.name = "";
-    if json.parse(&s).is_ok() {
-        assert_eq!(json.name, "native json");
-    }
+    json = native_json::parse(&s)?;
+    assert_eq!(json.name, "native json");
 
-    let _ = json.to_string();
-}
-
-#[test]
-fn json_read_write() -> Result<(), std::io::Error> {
-    let mut json = json!{
-        name: "native json",
-        point: { x: 10, y: 20},
-        array: [1,2,3,4,5],
-        vector: vec![1,2,3,4,5,6],
-        hashmap: HashMap::from([("a", 1), ("b", 2)])
-    };
-
-    let file = "json-rw.json";
-    assert!(json.write(file).is_ok());
-
-    json.name = "";
-    json.vector.clear();
-    json.hashmap.clear();
-
-    // read and parse from file
-    let mut zoombie = String::new();
-    assert!(json.read(file, &mut zoombie).is_ok());
-    assert!(json.vector[0] == 1);    
-
-    // test methods
-    let s = std::fs::read_to_string(file)?;
-    assert!(json.parse(&s).is_ok());
-    let _s1 = json.to_string();
-    let _s2 = json.stringify(4);  
-
-    std::fs::remove_file(file)?;
+    // concise string
+    let s2 = json.string()?;
+    json.name = "modified";
+    json = native_json::parse(&s2)?;
+    assert_eq!(json.name, "native json");
 
     Ok(())
 }
