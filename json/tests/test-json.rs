@@ -1,7 +1,37 @@
-use serde::{Serialize, Deserialize};
-use std::{collections::HashMap};
 use native_json::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 type Pod<T = (), E = anyhow::Error> = core::result::Result<T, E>;
+
+#[test]
+fn json_reserved_keywords() -> Pod {
+    // `keyword_` will be rename to `keyword`
+    // declare
+    json! {
+     Order {
+        type_: String
+     }
+    }
+
+    let mut order = Order::new();
+    order.type_ = "LIMIT".into();
+    let s = order.string()?;
+    assert!(s == "{\"type\":\"LIMIT\"}");
+
+    // generic
+    let mut json = json! {
+        type_ : "Action"
+    };
+
+    let s = json.string()?;
+    assert!(s == "{\"type\":\"Action\"}");
+
+    json.type_ = "".into();
+    json = serde_json::from_str(&s)?;
+    assert!(json.type_ == "Action");
+
+    Ok(())
+}
 
 #[test]
 fn json_instance() {
@@ -17,7 +47,7 @@ fn json_instance() {
         rect: {x: 10, y: 10, width: 100, height: 50}
     };
 
-    json.students[0].age += 1;    
+    json.students[0].age += 1;
     json.rect.x += 10;
     json.name = "Native JSON";
 }
@@ -45,7 +75,10 @@ fn json_declare() {
     school.name = "MIT".to_owned();
 
     let mut newbie = School_students_item::new();
-    let tutor = School_students_item_tutor { name: "Don Markuson".to_owned(), course: "Math".to_owned()};
+    let tutor = School_students_item_tutor {
+        name: "Don Markuson".to_owned(),
+        course: "Math".to_owned(),
+    };
     newbie.name = "John".to_owned();
     newbie.age = 17;
     newbie.tutor = tutor;
@@ -54,7 +87,7 @@ fn json_declare() {
 
 #[test]
 fn json_serialize() -> Pod {
-    let mut json = json!{
+    let mut json = json! {
         name: "native json",
         point: { x: 10, y: 20},
         array: [1,2,3,4,5],
@@ -78,12 +111,11 @@ fn json_serialize() -> Pod {
 
 #[test]
 fn json_test_array_with_custom_type() -> Result<(), std::io::Error> {
-
-    json!{
+    json! {
         Student { name: String, age: u32}
     }
 
-    json!{
+    json! {
         Class {
             name: String,
             students: [Student]
@@ -104,17 +136,17 @@ fn json_test_array_with_custom_type() -> Result<(), std::io::Error> {
 fn json_test_inline_comment() {
     println!("should compile");
     json! {
-        AggTrage {
-            e: String,   // Event type: aggTrade
-            E: i64,      // Event time
-            s: String,   // Symbol
-            a: i64,      // Aggregate trade ID
-            p: String,   // Price
-            q: String,   // Quantity
-            f: i64,      // First trade ID
-            l: i64,      // Last trade ID
-            T: i64,      // Trade time
-            m: bool,     // Is the buyer the market maker?
-            c: char,     // test only   
-        }}
+    AggTrage {
+        e: String,   // Event type: aggTrade
+        E: i64,      // Event time
+        s: String,   // Symbol
+        a: i64,      // Aggregate trade ID
+        p: String,   // Price
+        q: String,   // Quantity
+        f: i64,      // First trade ID
+        l: i64,      // Last trade ID
+        T: i64,      // Trade time
+        m: bool,     // Is the buyer the market maker?
+        c: char,     // test only
+    }}
 }

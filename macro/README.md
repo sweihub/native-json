@@ -8,7 +8,7 @@ This crate provides native JSON syntax for Rust, it brings with a powerful way o
 Add dependencies to your Cargo.toml, `serde_json` is only needed if you want to stringify the JSON object.
 ```toml
 [dependencies]
-native-json = "1.1"
+native-json = "1.2"
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ```
@@ -46,13 +46,14 @@ fn main()
     println!("{:#?}", t);
 
     // Stringify
-    let text = serde_json::to_string_pretty(&json).unwrap();
+    let text = json.string().unwrap();
     println!("{}", text);
 }
 ```
 ## Declare a named JSON struct
 
 With JSON decalre syntax, you can declare nested native JSON object in place. 
+Note: Identifier with underscore suffix will be renamed when serialize and deserialize, `type_` will be renamed to `type`.
 
 ### JSON Declare Syntax
 ```rust

@@ -14,7 +14,8 @@ use syn::{
 // value =  object | array | expression
 // expression = string | number | identifier
 
-const ATTRIBUTES: &str = "#[derive(Serialize, Deserialize, Debug, Clone)]\n#[allow(non_camel_case_types)]\n";
+const ATTRIBUTES: &str =
+    "#[derive(Serialize, Deserialize, Debug, Clone)]\n#[allow(non_camel_case_types)]\n";
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum ValueType {
@@ -288,7 +289,13 @@ impl Json {
                     i += 1;
                     i
                 });
-                let f = format!("{}:{}", pair.key.to_string(), t);
+                let key = pair.key.to_string();
+                let mut rename = "".to_string();
+                if key.len() > 1 && key.ends_with("_") {
+                    let name = &key[0..key.len() - 1];
+                    rename = format!("#[serde(rename = \"{name}\")]\n");
+                }
+                let f = format!("{rename} {}:{}", key, t);
                 types.push(t);
                 fields.push(f);
             }
@@ -393,7 +400,7 @@ impl Json {
     fn get_instance(&self, class: &String) -> String {
         const PRIMITIVES: [&str; 15] = [
             "u8", "u16", "u32", "u64", "u128", "i8", "i16", "i32", "i64", "i128", "f32", "f64",
-            "char", "isize", "usize"
+            "char", "isize", "usize",
         ];
 
         if class == "bool" {
@@ -458,7 +465,8 @@ impl Json {
                 for pair in &object.pairs {
                     let child = path.clone() + "_" + &pair.key.to_string();
                     let c = self.gen_initializer(&child, &pair.value);
-                    let f = format!("{}: {}", pair.key.to_string(), c);
+                    let key = pair.key.to_string();
+                    let f = format!("{}: {}", key, c);
                     fields.push(f);
                 }
                 code += format!("{} {{ {} }}", path, fields.join(",")).as_str();
@@ -492,8 +500,15 @@ impl Json {
                     let child = class.clone() + "_" + &pair.key.to_string();
                     let (n, c) = self.gen_declare(child, &pair.value);
                     code += &c;
+                    let key = pair.key.to_string();
+                    let mut rename = "".to_string();
+                    // reserved keyword: type?
+                    if key.len() > 1 && key.ends_with("_") {
+                        let name = &key[0..key.len() - 1];
+                        rename = format!("#[serde(rename = \"{name}\")]\n");
+                    }
                     // collapse to "key: type"
-                    let f = format!("pub {}:{}", pair.key.to_string(), n);
+                    let f = format!("{rename} pub {}:{}", key, n);
                     fields.push(f);
                 }
                 let c = format!("pub struct {} {{ {} }}\n", class, fields.join(","));
