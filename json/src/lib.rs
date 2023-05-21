@@ -50,13 +50,13 @@
 //!```
 //!## Declare a named JSON struct
 //!
-//!With JSON decalre syntax, you can declare nested native JSON object in place. 
+//!With JSON decalre syntax, you can declare nested native JSON object in place.
 //!
 //!### JSON Declare Syntax
 //!```rust
 //!json!{
-//!JSON_OBJECT_NAME { 
-//!    name : type, 
+//!JSON_OBJECT_NAME {
+//!    name : type,
 //!    array: [type],
 //!    object: {
 //!        name: type,
@@ -112,17 +112,21 @@
 //!
 pub use native_json_macro::*;
 pub use serde::{Deserialize, Serialize};
-pub use serde_json::Error;
 pub use serde_json::from_str as parse;
+pub use serde_json::Error;
+
+// #[serde(default, skip_serializing_if = "is_default")]
+pub fn is_default<T: Default + PartialEq>(t: &T) -> bool {
+    t == &T::default()
+}
 
 pub trait JSON: Serialize {
-
     /// Return a concise JSON string
     fn string(&self) -> anyhow::Result<String> {
         self.stringify(0)
     }
 
-     /// Stringify a native-json object
+    /// Stringify a native-json object
     ///
     /// indent
     ///
@@ -140,7 +144,7 @@ pub trait JSON: Serialize {
         let formatter = serde_json::ser::PrettyFormatter::with_indent(&spaces);
         let mut ser = serde_json::Serializer::with_formatter(buf, formatter);
 
-        self.serialize(&mut ser)?; 
+        self.serialize(&mut ser)?;
         let output = String::from_utf8(ser.into_inner())?;
 
         Ok(output)
@@ -148,4 +152,3 @@ pub trait JSON: Serialize {
 }
 
 impl<T> JSON for T where T: Serialize {}
-

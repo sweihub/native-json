@@ -6,7 +6,7 @@ This crate provides native JSON syntax for Rust, it brings with a powerful way o
 Add dependencies to your `Cargo.toml`.
 ```toml
 [dependencies]
-native-json = "1.1"
+native-json = "1.2"
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ```
@@ -21,6 +21,8 @@ fn main()
 {
     let mut json = json!{
         name: "native json",
+        state: i32?,    // optional field
+        type_: String,  // suffix underscore will be removed
         style: {
             color: "red",
             size: 12,

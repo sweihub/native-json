@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use syn::{
     parse::{Parse, ParseStream},
     *,
@@ -290,6 +289,7 @@ impl Json {
                     i
                 });
                 let key = pair.key.to_string();
+                // rename
                 let mut rename = "".to_string();
                 if key.len() > 1 && key.ends_with("_") {
                     let name = &key[0..key.len() - 1];
@@ -403,13 +403,22 @@ impl Json {
             "char", "isize", "usize",
         ];
 
+        // our optional suffix
+        let mut opt = class.clone();
+        if class.ends_with("?") {
+            opt = (&opt[0..opt.len() - 1]).into();
+        }
+
         if class == "bool" {
             return "false".to_owned();
         }
 
-        for c in &PRIMITIVES {
+        for c in PRIMITIVES {
             if c == class {
                 return format!("0 as {}", class);
+            }
+            if c == opt.as_str() {
+                return format!("0 as {}", opt);
             }
         }
 
@@ -424,6 +433,9 @@ impl Json {
             c = &class[0..i];
         } else if class == "str" || class == "&str" {
             c = "std::string::String";
+        } else if class.ends_with("?") {
+            // our optional suffix
+            c = &opt;
         }
 
         // type must have new() initializer
@@ -498,20 +510,40 @@ impl Json {
                 let mut fields = Vec::new();
                 for pair in &object.pairs {
                     let child = class.clone() + "_" + &pair.key.to_string();
-                    let (n, c) = self.gen_declare(child, &pair.value);
+                    let (mut n, c) = self.gen_declare(child, &pair.value);
                     code += &c;
                     let key = pair.key.to_string();
+                    // optional
+                    let mut optional = "";
+                    if n.ends_with("?") {
+                        n = (&n[0..n.len() - 1]).into();
+                        optional = "skip_serializing_if = \"native_json::is_default\"";
+                    }
+                    // rename
                     let mut rename = "".to_string();
-                    // reserved keyword: type?
                     if key.len() > 1 && key.ends_with("_") {
                         let name = &key[0..key.len() - 1];
-                        rename = format!("#[serde(rename = \"{name}\")]\n");
+                        rename = format!("rename = \"{name}\"");
+                    }
+                    // attributes
+                    let mut attributes = "".to_string();
+                    if optional.len() > 0 || rename.len() > 0 {
+                        attributes = "#[serde(default".into();
+                        if optional.len() > 0 {
+                            attributes += ",";
+                            attributes += optional;
+                        }
+                        if rename.len() > 0 {
+                            attributes += ",";
+                            attributes += &rename;
+                        }
+                        attributes += ")]\n";
                     }
                     // collapse to "key: type"
-                    let f = format!("{rename} pub {}:{}", key, n);
+                    let f = format!("{attributes}pub {}:{}", key, n);
                     fields.push(f);
                 }
-                let c = format!("pub struct {} {{ {} }}\n", class, fields.join(","));
+                let c = format!("pub struct {} {{\n{}\n}}\n", class, fields.join(",\n"));
                 code += ATTRIBUTES;
                 code += &c;
             }

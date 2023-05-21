@@ -52,13 +52,13 @@
 //!```
 //!## Declare a named JSON struct
 //!
-//!With JSON decalre syntax, you can declare nested native JSON object in place. 
+//!With JSON decalre syntax, you can declare nested native JSON object in place.
 //!
 //!### JSON Declare Syntax
 //!```rust
 //!json!{
-//!JSON_OBJECT_NAME { 
-//!    name : type, 
+//!JSON_OBJECT_NAME {
+//!    name : type,
 //!    array: [type],
 //!    object: {
 //!        name: type,
@@ -116,16 +116,16 @@ extern crate proc_macro;
 mod json;
 
 use json::*;
-use std::str::FromStr;
 use proc_macro::TokenStream;
+use std::str::FromStr;
 use syn::parse_macro_input;
 
 /// Declare or instantiate a native JSON object, please refere to module [json](index.html)
 #[proc_macro]
 pub fn json(input: TokenStream) -> TokenStream {
-    let parser = parse_macro_input!(input as Json); 
+    let parser = parse_macro_input!(input as Json);
     let block = parser.get_block();
     // Show me the code
-    // println!("XXXXXXXX\n{}", block);
+    // println!("XXXXXXXXXXXXXXXX\n{}", block);
     return TokenStream::from_str(block.as_str()).unwrap();
 }

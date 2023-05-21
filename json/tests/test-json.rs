@@ -4,6 +4,30 @@ use std::collections::HashMap;
 type Pod<T = (), E = anyhow::Error> = core::result::Result<T, E>;
 
 #[test]
+fn json_optional_field() -> Pod {
+    // optional field: key: type?
+    // - serialize,   remove field if value is default
+    // - deserialize, set default value if field is missing
+    json! {
+    Order {
+        state: i32?, // optiona field
+        type_: i32   // suffix will be removed
+    }}
+
+    let mut order = Order::new();
+    assert!(order.type_ == 0);
+
+    let s = order.string()?;
+    assert!(s == "{\"type\":0}");
+
+    let s = "{\"type\":0,\"state\":100}";
+    order = serde_json::from_str(s)?;
+    assert!(order.state == 100);
+
+    Ok(())
+}
+
+#[test]
 fn json_reserved_keywords() -> Pod {
     // `keyword_` will be rename to `keyword`
     // declare
