@@ -517,7 +517,7 @@ impl Json {
                     let mut optional = "";
                     if n.ends_with("?") {
                         n = (&n[0..n.len() - 1]).into();
-                        optional = "skip_serializing_if = \"native_json::is_default\"";
+                        optional = "skip_serializing_if = \"is_default\"";
                     }
                     // rename
                     let mut rename = "".to_string();
