@@ -21,8 +21,6 @@ fn main()
 {
     let mut json = json!{
         name: "native json",
-        state: i32?,    // optional field
-        type_: String,  // suffix underscore will be removed
         style: {
             color: "red",
             size: 12,
@@ -58,6 +56,8 @@ With JSON decalre syntax, you can declare nested native JSON object in place.
 ```rust
 json!{
 JSON_OBJECT_NAME { 
+    state: i32?,    // optional field
+    type_: String,  // suffix underscore will be removed when serialize & deserialize
     name : type, 
     array: [type],
     object: {
