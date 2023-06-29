@@ -6,7 +6,7 @@ RS=$2
 TEMP=markdown-module-doc.rs
 
 if [ -z $RS ]; then
-    echo "Usage: docs.sh markdown.md rust.js"
+    echo "Usage: docs.sh markdown.md rust.rs"
     exit
 fi
 

@@ -6,7 +6,7 @@
 //!Add dependencies to your `Cargo.toml`.
 //!```toml
 //![dependencies]
-//!native-json = "1.1"
+//!native-json = "1.2"
 //!serde = {version = "1.0", features = ["derive"] }
 //!serde_json = "1.0"
 //!```
@@ -50,13 +50,15 @@
 //!```
 //!## Declare a named JSON struct
 //!
-//!With JSON decalre syntax, you can declare nested native JSON object in place.
+//!With JSON declare syntax, you can declare nested native JSON object in place. 
 //!
 //!### JSON Declare Syntax
 //!```rust
 //!json!{
-//!JSON_OBJECT_NAME {
-//!    name : type,
+//!JSON_OBJECT_NAME { 
+//!    state: i32?,    // optional field
+//!    type_: String,  // suffix underscore will be removed when serialize & deserialize
+//!    name : type, 
 //!    array: [type],
 //!    object: {
 //!        name: type,

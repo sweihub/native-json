@@ -52,7 +52,7 @@ fn main()
 ```
 ## Declare a named JSON struct
 
-With JSON decalre syntax, you can declare nested native JSON object in place. 
+With JSON declare syntax, you can declare nested native JSON object in place. 
 Note: Identifier with underscore suffix will be renamed when serialize and deserialize, `type_` will be renamed to `type`.
 
 ### JSON Declare Syntax
@@ -60,6 +60,8 @@ Note: Identifier with underscore suffix will be renamed when serialize and deser
 json!{
 JSON_OBJECT_NAME { 
     name : type, 
+    value: type?,  // optional field when serialize & deserialize
+    type_: String, // suffix underscore will be removed when serialize & deserialize
     array: [type],
     object: {
         name: type,
@@ -81,8 +83,10 @@ use native_json::json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-json!{ School {
+json!{ 
+School {
     name: String,
+    rank: u32?, // optional
     students: [
         { name: String, age: u16 },
         ...

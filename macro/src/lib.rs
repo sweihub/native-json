@@ -8,7 +8,7 @@
 //!Add dependencies to your Cargo.toml, `serde_json` is only needed if you want to stringify the JSON object.
 //!```toml
 //![dependencies]
-//!native-json = "1.1"
+//!native-json = "1.2"
 //!serde = {version = "1.0", features = ["derive"] }
 //!serde_json = "1.0"
 //!```
@@ -46,19 +46,22 @@
 //!    println!("{:#?}", t);
 //!
 //!    // Stringify
-//!    let text = serde_json::to_string_pretty(&json).unwrap();
+//!    let text = json.string().unwrap();
 //!    println!("{}", text);
 //!}
 //!```
 //!## Declare a named JSON struct
 //!
-//!With JSON decalre syntax, you can declare nested native JSON object in place.
+//!With JSON declare syntax, you can declare nested native JSON object in place. 
+//!Note: Identifier with underscore suffix will be renamed when serialize and deserialize, `type_` will be renamed to `type`.
 //!
 //!### JSON Declare Syntax
 //!```rust
 //!json!{
-//!JSON_OBJECT_NAME {
-//!    name : type,
+//!JSON_OBJECT_NAME { 
+//!    name : type, 
+//!    value: type?,  // optional field when serialize & deserialize
+//!    type_: String, // suffix underscore will be removed when serialize & deserialize
 //!    array: [type],
 //!    object: {
 //!        name: type,
@@ -80,8 +83,10 @@
 //!use serde::{Deserialize, Serialize};
 //!use std::collections::HashMap;
 //!
-//!json!{ School {
+//!json!{ 
+//!School {
 //!    name: String,
+//!    rank: u32?, // optional
 //!    students: [
 //!        { name: String, age: u16 },
 //!        ...

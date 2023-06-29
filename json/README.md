@@ -50,7 +50,7 @@ fn main()
 ```
 ## Declare a named JSON struct
 
-With JSON decalre syntax, you can declare nested native JSON object in place. 
+With JSON declare syntax, you can declare nested native JSON object in place. 
 
 ### JSON Declare Syntax
 ```rust
