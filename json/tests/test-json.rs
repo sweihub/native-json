@@ -11,7 +11,8 @@ fn json_optional_field() -> Pod {
     json! {
     Order {
         state: i32?, // optiona field
-        type_: i32   // suffix will be removed
+        type_: i32,   // suffix will be removed
+        proxy: bool?
     }}
 
     let mut order = Order::new();
@@ -23,6 +24,9 @@ fn json_optional_field() -> Pod {
     let s = "{\"type\":0,\"state\":100}";
     order = serde_json::from_str(s)?;
     assert!(order.state == 100);
+
+    // bool
+    assert!(order.proxy == false);
 
     Ok(())
 }

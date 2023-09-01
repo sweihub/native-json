@@ -199,7 +199,7 @@ impl Json {
         let mut value = self.parse_object(input)?;
 
         // using declared name
-        let mut object = self.get_object_mut(&value);
+        let object = self.get_object_mut(&value);
         object.name = name.to_string();
         value.t = ValueType::DECLARE;
 
@@ -404,21 +404,18 @@ impl Json {
         ];
 
         // our optional suffix
-        let mut opt = class.clone();
+        let mut t = class.clone();
         if class.ends_with("?") {
-            opt = (&opt[0..opt.len() - 1]).into();
+            t = (&t[0..t.len() - 1]).into();
         }
 
-        if class == "bool" {
+        if t == "bool" {
             return "false".to_owned();
         }
 
         for c in PRIMITIVES {
-            if c == class {
-                return format!("0 as {}", class);
-            }
-            if c == opt.as_str() {
-                return format!("0 as {}", opt);
+            if c == &t {
+                return format!("0 as {}", t);
             }
         }
 
@@ -435,7 +432,7 @@ impl Json {
             c = "std::string::String";
         } else if class.ends_with("?") {
             // our optional suffix
-            c = &opt;
+            c = &t;
         }
 
         // type must have new() initializer
