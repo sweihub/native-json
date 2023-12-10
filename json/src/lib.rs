@@ -147,11 +147,10 @@ pub trait JSON: Serialize {
         }
 
         // pretty
-        let spaces = vec![' ' as u8; indent];
         let buf = Vec::new();
+        let spaces = vec![' ' as u8; indent];
         let formatter = serde_json::ser::PrettyFormatter::with_indent(&spaces);
         let mut ser = serde_json::Serializer::with_formatter(buf, formatter);
-
         self.serialize(&mut ser)?;
         let output = String::from_utf8(ser.into_inner())?;
 
@@ -173,7 +172,7 @@ where
 }
 
 /// Serialize into file
-pub fn write<T, P: AsRef<Path>>(value: &T, path: P) -> anyhow::Result<()>
+pub fn write<T, P: AsRef<Path>>(path: P, value: &T) -> anyhow::Result<()>
 where
     T: Serialize,
 {
