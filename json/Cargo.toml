@@ -1,6 +1,6 @@
 [package]
 name = "native-json"
-version = "1.2.9"
+version = "1.2.10"
 edition = "2021"
 description = "Native JSON for Rust"
 license = "MIT"

@@ -177,7 +177,11 @@ pub fn write<T, P: AsRef<Path>>(path: P, value: &T) -> anyhow::Result<()>
 where
     T: Serialize,
 {
-    let file = OpenOptions::new().write(true).create(true).open(path)?;
+    let file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(path)?;
     let writer = BufWriter::new(file);
     Ok(serde_json::to_writer_pretty(writer, value)?)
 }
@@ -203,6 +207,7 @@ impl<'a> Writer<'a> {
         let file = OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(self.path)?;
         let writer = BufWriter::new(file);
         let formatter = serde_json::ser::PrettyFormatter::with_indent(&spaces);
