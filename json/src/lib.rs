@@ -50,15 +50,15 @@
 //!```
 //!## Declare a named JSON struct
 //!
-//!With JSON declare syntax, you can declare nested native JSON object in place. 
+//!With JSON declare syntax, you can declare nested native JSON object in place.
 //!
 //!### JSON Declare Syntax
 //!```rust
 //!json!{
-//!JSON_OBJECT_NAME { 
+//!JSON_OBJECT_NAME {
 //!    state: i32?,    // optional field
 //!    type_: String,  // suffix underscore will be removed when serialize & deserialize
-//!    name : type, 
+//!    name : type,
 //!    array: [type],
 //!    object: {
 //!        name: type,
@@ -112,7 +112,13 @@
 //!}
 //!```
 //!
+use std::fs::File;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::path::Path;
+
 pub use native_json_macro::*;
+pub use serde::de::DeserializeOwned;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::from_str as parse;
 pub use serde_json::Error;
@@ -154,3 +160,26 @@ pub trait JSON: Serialize {
 }
 
 impl<T> JSON for T where T: Serialize {}
+
+/// Deserialize from file
+pub fn read<T, P: AsRef<Path>>(path: P) -> anyhow::Result<T>
+where
+    T: DeserializeOwned,
+{
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let value = serde_json::from_reader(reader)?;
+    Ok(value)
+}
+
+/// Serialize into file with 4 spaces indentation
+pub fn write<T, P: AsRef<Path>>(value: &T, path: P) -> anyhow::Result<()>
+where
+    T: Serialize,
+{
+    let file = File::open(path)?;
+    let writer = BufWriter::new(file);
+    let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
+    let mut ser = serde_json::Serializer::with_formatter(writer, formatter);
+    Ok(value.serialize(&mut ser)?)
+}

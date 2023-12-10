@@ -80,7 +80,8 @@ use native_json::json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-json!{ School {
+json!{
+School {
     name: String,
     students: [
         { name: String, age: u16 },
