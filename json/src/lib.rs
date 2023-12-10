@@ -113,6 +113,7 @@
 //!```
 //!
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::BufReader;
 use std::io::BufWriter;
 use std::path::Path;
@@ -176,7 +177,7 @@ pub fn write<T, P: AsRef<Path>>(path: P, value: &T) -> anyhow::Result<()>
 where
     T: Serialize,
 {
-    let file = File::open(path)?;
+    let file = OpenOptions::new().write(true).create(true).open(path)?;
     let writer = BufWriter::new(file);
     Ok(serde_json::to_writer_pretty(writer, value)?)
 }
@@ -199,7 +200,10 @@ impl<'a> Writer<'a> {
         T: Serialize,
     {
         let spaces = vec![' ' as u8; self.indent];
-        let file = File::open(self.path)?;
+        let file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(self.path)?;
         let writer = BufWriter::new(file);
         let formatter = serde_json::ser::PrettyFormatter::with_indent(&spaces);
         let mut ser = serde_json::Serializer::with_formatter(writer, formatter);
