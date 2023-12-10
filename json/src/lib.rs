@@ -172,14 +172,49 @@ where
     Ok(value)
 }
 
-/// Serialize into file with 4 spaces indentation
+/// Serialize into file
 pub fn write<T, P: AsRef<Path>>(value: &T, path: P) -> anyhow::Result<()>
 where
     T: Serialize,
 {
     let file = File::open(path)?;
     let writer = BufWriter::new(file);
-    let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
-    let mut ser = serde_json::Serializer::with_formatter(writer, formatter);
-    Ok(value.serialize(&mut ser)?)
+    Ok(serde_json::to_writer_pretty(writer, value)?)
+}
+
+pub struct Writer<'a> {
+    path: &'a Path,
+    indent: usize,
+}
+
+impl<'a> Writer<'a> {
+    /// Indentation
+    pub fn indent(mut self, n: usize) -> Self {
+        self.indent = n;
+        self
+    }
+
+    /// Write the value into file
+    pub fn write<T>(&self, value: &T) -> anyhow::Result<()>
+    where
+        T: Serialize,
+    {
+        let spaces = vec![' ' as u8; self.indent];
+        let file = File::open(self.path)?;
+        let writer = BufWriter::new(file);
+        let formatter = serde_json::ser::PrettyFormatter::with_indent(&spaces);
+        let mut ser = serde_json::Serializer::with_formatter(writer, formatter);
+        Ok(value.serialize(&mut ser)?)
+    }
+}
+
+/// Build a file writer
+pub fn writer<'a, P>(path: &'a P) -> Writer<'a>
+where
+    P: AsRef<Path>,
+{
+    Writer {
+        path: path.as_ref(),
+        indent: 2,
+    }
 }
